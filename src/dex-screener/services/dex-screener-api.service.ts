@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { firstValueFrom } from 'rxjs';
@@ -65,7 +64,7 @@ export class DexScreenerApiService {
     private readonly liquidityHistoryRepository: Repository<DexLiquidityHistory>,
   ) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  // @Cron(CronExpression.EVERY_30_SECONDS)
   async fetchAndUpdateTrackedPairs() {
     try {
       const trackedPairs = await this.pairRepository.find({

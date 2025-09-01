@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ScheduleModule } from '@nestjs/schedule';
 import { HttpModule } from '@nestjs/axios';
 
 // Entities
@@ -34,7 +33,6 @@ import { DexDataGateway } from './gateways/dex-data.gateway';
       DexLiquidityHistory,
       DexAlert,
     ]),
-    ScheduleModule.forRoot(),
     HttpModule,
   ],
   controllers: [DexScreenerController],

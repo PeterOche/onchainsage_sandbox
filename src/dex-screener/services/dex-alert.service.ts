@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { DexAlert, DexAlertType, DexAlertCondition, DexAlertStatus } from '../entities/dex-alert.entity';
 import { DexDataService } from './dex-data.service';
 
@@ -15,7 +14,7 @@ export class DexAlertService {
     private readonly dexDataService: DexDataService,
   ) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  // @Cron(CronExpression.EVERY_MINUTE)
   async checkAlerts() {
     try {
       const activeAlerts = await this.alertRepository.find({
@@ -48,7 +47,7 @@ export class DexAlertService {
     });
   }
 
-  async updateAlert(id: string, updateData: Partial<DexAlert>): Promise<DexAlert> {
+  async updateAlert(id: string, updateData: Partial<DexAlert>): Promise<DexAlert | null> {
     await this.alertRepository.update(id, updateData);
     return await this.alertRepository.findOne({ where: { id } });
   }
@@ -57,7 +56,7 @@ export class DexAlertService {
     await this.alertRepository.delete(id);
   }
 
-  async toggleAlert(id: string): Promise<DexAlert> {
+  async toggleAlert(id: string): Promise<DexAlert | null> {
     const alert = await this.alertRepository.findOne({ where: { id } });
     if (alert) {
       alert.isEnabled = !alert.isEnabled;

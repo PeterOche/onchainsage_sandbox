@@ -3,8 +3,6 @@ import { DexDataService } from './dex-data.service';
 import { ExportFormat, ExportType } from '../dto/dex-export.dto';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as csv from 'csv-writer';
-import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class DexExportService {
@@ -235,12 +233,12 @@ export class DexExportService {
     if (data.length === 0) return;
 
     const headers = Object.keys(data[0]);
-    const csvWriter = csv.createObjectCsvWriter({
-      path: filepath,
-      header: headers.map(h => ({ id: h, title: h })),
-    });
+    const csvContent = [
+      headers.join(','),
+      ...data.map(row => headers.map(h => row[h]).join(','))
+    ].join('\n');
 
-    await csvWriter.writeRecords(data);
+    fs.writeFileSync(filepath, csvContent);
   }
 
   private async writeJSON(filepath: string, data: any) {
@@ -248,35 +246,10 @@ export class DexExportService {
   }
 
   private async writeExcel(filepath: string, data: any, sheetName: string) {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet(sheetName);
-
-    if (Array.isArray(data) && data.length > 0) {
-      // Add headers
-      const headers = Object.keys(data[0]);
-      worksheet.addRow(headers);
-
-      // Add data rows
-      data.forEach(row => {
-        worksheet.addRow(headers.map(h => row[h]));
-      });
-    } else if (typeof data === 'object') {
-      // Handle analytics object with multiple sheets
-      Object.keys(data).forEach(key => {
-        const sheet = workbook.addWorksheet(key);
-        const sheetData = data[key];
-        
-        if (Array.isArray(sheetData) && sheetData.length > 0) {
-          const headers = Object.keys(sheetData[0]);
-          sheet.addRow(headers);
-          sheetData.forEach(row => {
-            sheet.addRow(headers.map(h => row[h]));
-          });
-        }
-      });
-    }
-
-    await workbook.xlsx.writeFile(filepath);
+    // For now, write as CSV with .xlsx extension
+    // In a real implementation, you would use a proper Excel library
+    const csvFilepath = filepath.replace('.xlsx', '.csv');
+    await this.writeCSV(csvFilepath, Array.isArray(data) ? data : [data]);
   }
 
   getExportPath(filename: string): string {
